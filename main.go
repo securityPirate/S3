@@ -1,11 +1,15 @@
 package main
 
 import (
-	"./src"
-	//"fmt"
+	"fmt"
+
+	s4 "./src"
 )
 
-func main(){
-	s4.HMAC([]byte("nacl"),[]byte("helloworld"))
+func main() {
+	a := s4.Symmetric{}
+	a.Generate()
+	e := a.Encrypt([]byte("jjhelloman,we are in the see man ."))
+	
 
 }

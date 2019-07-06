@@ -34,7 +34,7 @@ type ECC struct {
 	c elliptic.Curve
 	pub Public
 	private []byte
-	s *big.Int
+	s1,s2 *big.Int
 }
 
 /*Public ...
@@ -61,9 +61,10 @@ func eccGenerate(){
 	generate shared secret key 
 */
 func (ecc1 *ECC)eccSharedGenerator(ecc2 *ECC) *big.Int {
-	ecc1.s,_ = ecc1.c.ScalarMult(ecc2.pub.X,ecc2.pub.Y,ecc1.private)
-	ecc2.s = ecc1.s
-	return ecc1.s
+	ecc1.s1,_ = ecc1.c.ScalarMult(ecc2.pub.X,ecc2.pub.Y,ecc1.private)
+	ecc2.s1 = ecc1.s1
+	fmt.Printf("%v",ecc1.s1)
+	return ecc1.s1
 }
 
 /*HMAC ...
@@ -71,7 +72,7 @@ func (ecc1 *ECC)eccSharedGenerator(ecc2 *ECC) *big.Int {
 */
 func HMAC(salt []byte , key []byte){
 	x := hmac.New(sha256.New,key)
-	fmt.Printf("%t",x)
+	fmt.Printf("%x",x)
 		
 }
 
@@ -81,9 +82,21 @@ func KDF (ecc ECC,){
 }
 
 
-// Eccbrb ...
-func eccsfdsafds(){	
+// EccTest ...
+func EccTest(){	
 	// sha-256
-	h := sha256.Sum256([]byte("helloworld"))
-	fmt.Printf("%x\n\n",h)
+	// h := sha256.Sum256([]byte("helloworld"))
+	// fmt.Printf("%x\n\n",h)
+
+	var ecc1 ,ecc2 ECC
+	ecc1.c = elliptic.P521()
+	ecc2.c = ecc1.c
+	//generate the public and private keys
+	ecc1.private,ecc1.pub.X,ecc1.pub.Y,_ = elliptic.GenerateKey(ecc1.c,rand.Reader)
+	ecc2.private,ecc2.pub.X,ecc2.pub.Y,_ = elliptic.GenerateKey(ecc1.c,rand.Reader)
+	ecc1.s1,ecc1.s2 = ecc1.c.ScalarMult(ecc2.pub.X,ecc2.pub.Y,ecc1.private)
+	ecc2.s1,ecc2.s2 = ecc1.c.ScalarMult(ecc1.pub.X,ecc1.pub.Y,ecc2.private)
+	z := elliptic.Marshal(ecc1.c , ecc1.pub.X,ecc1.pub.Y  )
+	fmt.Printf("%x\n\n len : %v\n",z , len(z)) 
+	
 }

@@ -1,6 +1,6 @@
 package s4
 
-//generating AES-256-GCM
+//generating AES-256-CTR
 
 import (
 	"crypto/aes"
@@ -9,7 +9,7 @@ import (
 )
 
 // error
-func logE(nerror error){
+func logE(nerror error) {
 	if nerror != nil {
 		panic(nerror)
 	}
@@ -17,51 +17,41 @@ func logE(nerror error){
 
 // Symmetric ...
 type Symmetric struct {
-	key   []byte
-	nonce []byte
+	Key, IV, iv8 []byte
 }
 
-// Generate AES Key , nonce , block
-func (sym *Symmetric) Generate() []byte {
-	sym.key = make([]byte, 32)
-	_, err := rand.Read(sym.key)
-	logE(err)
+// Generate AES Key , IV
+func (sym *Symmetric) Generate() ([]byte, []byte) {
 
-	block, err := aes.NewCipher(sym.key)
+	sym.Key = make([]byte, 32)
+	sym.IV = make([]byte, aes.BlockSize)
+	sym.iv8 = make([]byte, aes.BlockSize)
+	_, err := rand.Read(sym.Key)
+	_, err = rand.Read(sym.IV)
+	_, err = rand.Read(sym.iv8)
 	logE(err)
-
-	AES256GCM, err := cipher.NewGCM(block)
-	logE(err)
-
-	sym.nonce = make([]byte, AES256GCM.NonceSize())
-	_, err = rand.Read(sym.nonce)
-	logE(err)
-
-	return sym.key
+	return sym.Key, sym.IV
 }
 
 // Encrypt ...
-func (sym Symmetric) Encrypt( plain []byte) []byte {
-	block, err := aes.NewCipher(sym.key)
+func (sym Symmetric) Encrypt(plain []byte) []byte {
+	block, err := aes.NewCipher(sym.Key)
 	logE(err)
-
-	AES256GCM, err := cipher.NewGCM(block)
-	logE(err)
-
-	theCipher := AES256GCM.Seal(nil, sym.nonce, plain , nil)
-	return theCipher
+	stream := cipher.NewCTR(block, sym.IV)
+	ciphered := make([]byte, (2*aes.BlockSize)+len(plain))
+	copy(ciphered[aes.BlockSize/2:], sym.IV)
+	copy(ciphered[0:aes.BlockSize/2], sym.iv8[0:aes.BlockSize/2])
+	copy(ciphered[aes.BlockSize/2+aes.BlockSize:], sym.iv8[aes.BlockSize/2:])
+	stream.XORKeyStream(ciphered[2*aes.BlockSize:], plain)
+	return ciphered
 }
 
 // Decrypt ...
 func (sym Symmetric) Decrypt(ciphered []byte) []byte {
-	block, err := aes.NewCipher(sym.key)
+	block, err := aes.NewCipher(sym.Key)
 	logE(err)
-
-	AES256GCM, err := cipher.NewGCM(block)
-	logE(err)
-
-	plain, err := AES256GCM.Open(nil,sym.nonce,ciphered,nil)
-	logE(err)
-
+	stream := cipher.NewCTR(block, sym.IV)
+	plain := make([]byte, len(ciphered)-2*aes.BlockSize)
+	stream.XORKeyStream(plain, ciphered[2*aes.BlockSize:])
 	return plain
 }
