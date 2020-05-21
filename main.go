@@ -8,7 +8,9 @@ import (
 func main() {
 	a := cryptor.Symmetric{}
 	a.Generate()
-	e := a.Encrypt([]byte("jjhelloman,we are in the see man ."))
-	fmt.Println(e)
-
+	e := a.Encrypt([]byte("AES works man 123456789"))
+	fmt.Println(string(e))
+	fmt.Println(string(a.Decrypt(e)))
+	fmt.Println("----________________----")
+	cryptor.EccTest()
 }

@@ -5,26 +5,13 @@ import (
 	"os"
 )
 
-//Severity type/level of logs required
-type Severity struct {
-	//Info, Warning, Error
-	level string
-}
 
-//LogSeverity hold the data and severity level
-type LogSeverity struct {
-	severity   Severity
-	message string
-}
-
-//Logger take two paramters
-//file and string
-func Logger(data LogSeverity) {
-	if data.severity.level == "Info" {
-		file, _ := os.OpenFile("../../go.mod", os.O_CREATE , 0644)
-		file.Close()
-	} else {
-		log.Print("")
+// LogError in a file 
+func LogError(err error) {
+	if err != nil {
+		file, _ := os.OpenFile("s4.log", os.O_CREATE | os.O_APPEND , 0644)
+		defer file.Close()
+		file.Write([]byte(err.Error()))
+		log.Println(err)
 	}
-
 }
