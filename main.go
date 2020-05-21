@@ -2,8 +2,7 @@ package main
 
 import (
 	"fmt"
-
-	"cryptor"
+	"github.com/securityPirate/S4/pkg/cryptor"
 )
 
 func main() {

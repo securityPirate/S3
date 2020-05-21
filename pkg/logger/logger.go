@@ -13,15 +13,16 @@ type Severity struct {
 
 //LogSeverity hold the data and severity level
 type LogSeverity struct {
-	level   Severity
+	severity   Severity
 	message string
 }
 
 //Logger take two paramters
 //file and string
 func Logger(data LogSeverity) {
-	if data.level == "Info" {
-		file, _ := os.OpenFile("../../go.mod")
+	if data.severity.level == "Info" {
+		file, _ := os.OpenFile("../../go.mod", os.O_CREATE , 0644)
+		file.Close()
 	} else {
 		log.Print("")
 	}
