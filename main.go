@@ -1,11 +1,15 @@
 package main
 
 import (
-	s4 "./pkg"
+	"fmt"
+
+	"cryptor"
 )
 
 func main() {
-	a := s4.Symmetric{}
+	a := cryptor.Symmetric{}
 	a.Generate()
 	e := a.Encrypt([]byte("jjhelloman,we are in the see man ."))
+	fmt.Println(e)
+
 }

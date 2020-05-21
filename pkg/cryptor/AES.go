@@ -1,4 +1,4 @@
-package s4
+package cryptor
 
 //generating AES-256-CTR
 

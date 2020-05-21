@@ -1,4 +1,4 @@
-package s4
+package cryptor
 
 import (
 	"crypto/sha256"
