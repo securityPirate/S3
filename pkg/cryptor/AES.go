@@ -3,17 +3,11 @@ package cryptor
 //generating AES-256-CTR
 
 import (
+	"github.com/securityPirate/S4/pkg/logger"
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
 )
-
-// error
-func logE(nerror error) {
-	if nerror != nil {
-		panic(nerror)
-	}
-}
 
 // Symmetric ...
 type Symmetric struct {
@@ -29,14 +23,14 @@ func (sym *Symmetric) Generate() ([]byte, []byte) {
 	_, err := rand.Read(sym.Key)
 	_, err = rand.Read(sym.IV)
 	_, err = rand.Read(sym.iv8)
-	logE(err)
+	logger.LogError(err)
 	return sym.Key, sym.IV
 }
 
 // Encrypt ...
 func (sym Symmetric) Encrypt(plain []byte) []byte {
 	block, err := aes.NewCipher(sym.Key)
-	logE(err)
+	logger.LogError(err)
 	stream := cipher.NewCTR(block, sym.IV)
 	ciphered := make([]byte, (2*aes.BlockSize)+len(plain))
 	copy(ciphered[aes.BlockSize/2:], sym.IV)
@@ -49,7 +43,7 @@ func (sym Symmetric) Encrypt(plain []byte) []byte {
 // Decrypt ...
 func (sym Symmetric) Decrypt(ciphered []byte) []byte {
 	block, err := aes.NewCipher(sym.Key)
-	logE(err)
+	logger.LogError(err)
 	stream := cipher.NewCTR(block, sym.IV)
 	plain := make([]byte, len(ciphered)-2*aes.BlockSize)
 	stream.XORKeyStream(plain, ciphered[2*aes.BlockSize:])
